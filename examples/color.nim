@@ -1,4 +1,9 @@
 import termtools
+import std/exitprocs
+
+initTermTools()
+addExitProc proc() =
+  deinitTermTools()
 
 # True colors:
 # COLORTERM=24bit TERM=screen

@@ -1,5 +1,11 @@
 import termtools
 import strutils
+import std/exitprocs
+
+initTermTools()
+addExitProc proc() =
+  deinitTermTools()
+
 
 stdout.write "bold".bold & " "
 stdout.write "faint".faint & " "

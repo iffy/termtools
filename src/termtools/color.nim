@@ -49,6 +49,32 @@ const
   SEQ_FGCOLOR = "38"
   SEQ_BGCOLOR = "48"
 
+when defined(windows):
+  import winlean
+  proc getConsoleMode(hConsoleHandle: Handle, dwMode: ptr DWORD): WINBOOL {.stdcall, dynlib: "kernel32", importc: "GetConsoleMode".}
+  proc setConsoleMode(hConsoleHandle: Handle, dwMode: DWORD): WINBOOL {.stdcall, dynlib: "kernel32", importc: "SetConsoleMode".}
+  
+  const
+    ENABLE_PROCESSED_OUTPUT = 0x0001
+    ENABLE_WRAP_AT_EOL_OUTPUT = 0x0002
+    ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+    DISABLE_NEWLINE_AUTO_RETURN = 0x0008
+    ENABLE_LVB_GRID_WORLDWIDE = 0x0010
+
+  var gOldConsoleMode: DWORD
+
+  proc initTermTools*() =
+    if getConsoleMode(getStdHandle(STD_OUTPUT_HANDLE), gOldConsoleMode.addr) != 0:
+      let mode = (gOldConsoleMode and (not ENABLE_WRAP_AT_EOL_OUTPUT)) or ENABLE_VIRTUAL_TERMINAL_PROCESSING
+      discard setConsoleMode(getStdHandle(STD_OUTPUT_HANDLE), mode)
+  
+  proc deinitTermTools*() =
+    discard setConsoleMode(getStdHandle(STD_OUTPUT_HANDLE), gOldConsoleMode)
+
+else:
+  proc initTermTools*() = discard
+  proc deinitTermTools*() = discard
+
 proc getColorProfile*(): ColorProfile =
   ## Return the current terminal's color profile
   if not stdout.isatty:
@@ -73,7 +99,7 @@ proc getColorProfile*(): ColorProfile =
           return Ansi256
         elif "color" in term:
           return Ansi
-  return Ascii
+    return Ascii
 
 proc closest*(color: Color, options: openArray[Color]): Natural =
   ## Return the closest color within the given options
