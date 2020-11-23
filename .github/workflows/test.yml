@@ -9,24 +9,22 @@ on:
     - cron: '0 0 * * 1'
 
 jobs:
-  build:
+  tests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        nimversion:
-        - stable
-        - devel
+        version:
+          - stable
+          - devel
         os:
-        - ubuntu-latest
-        - macOS-latest
-        - windows-latest
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: iffy/install-nim@v1.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: iffy/install-nim@v3
       with:
-        nimversion: ${{ matrix.nimversion }}
+        nimversion: ${{ matrix.version }}
     - name: Install deps
       run: |
         nimble refresh

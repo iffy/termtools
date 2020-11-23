@@ -1,3 +1,5 @@
+![Tests](https://github.com/iffy/termtools/workflows/tests/badge.svg?branch=master)
+
 This is a Nim port of the excellent [termenv Go library](https://github.com/muesli/termenv).
 
 See [examples/everything.nim](example/everything.nim) for an example of everything this library can do.
