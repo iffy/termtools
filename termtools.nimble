@@ -10,3 +10,5 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.4.0"
+# requires "unicodedb >= 0.9.0 & < 1.0.0"
+requires "graphemes"
