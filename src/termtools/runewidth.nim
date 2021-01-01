@@ -7,6 +7,7 @@ import strutils
 import unicode
 import algorithm
 import ./widthdata
+import graphemes
 
 when defined(windows):
   proc getConsoleOutputCP(): cint {.stdcall, dynlib: "kernel32", importc: "GetConsoleOutputCP".}
@@ -75,7 +76,7 @@ proc inRangeArray*(x: int, ranges: openArray[Slice[int]]): bool =
         return -1
   )
 
-proc cellWidth*(r: Rune, eastAsianWidth = DEFAULT_EASTASIANWIDTH): int {.inline.} =
+proc runeWidth*(r: Rune, eastAsianWidth = DEFAULT_EASTASIANWIDTH): int {.inline.} =
   if r.int < 0:
     return 0
   elif r.int > 0x10FFFF:
@@ -89,6 +90,12 @@ proc cellWidth*(r: Rune, eastAsianWidth = DEFAULT_EASTASIANWIDTH): int {.inline.
   else:
     return 1
 
+proc graphemeWidth*(g: string, isEastAsianWidth = DEFAULT_EASTASIANWIDTH): int {.inline.} =
+  for rune in g.runes():
+    result.inc(rune.runeWidth(isEastAsianWidth))
+  if result > 2:
+    result = 2
+
 proc cellWidth*(s: string, eastAsianWidth = DEFAULT_EASTASIANWIDTH): int =
   ## Given a string, return the number of monospace/terminal cells
   ## occupied by the string.  For instance "世界" occupies 4 cells
@@ -98,5 +105,5 @@ proc cellWidth*(s: string, eastAsianWidth = DEFAULT_EASTASIANWIDTH): int =
     doAssert cellWidth("a") == 1
     doAssert cellWidth("😊") == 2
 
-  for c in s.runes:
-    result.inc c.cellWidth(eastAsianWidth)
+  for g in s.graphemes():
+    result.inc g.graphemeWidth(eastAsianWidth)
